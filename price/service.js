@@ -113,6 +113,10 @@ var PriceService = function($container, source) {
 		return null;
 	}
 
+	function onChange(update) {
+		$.extend(price, update);
+	}
+
 	function createProperties(item) {
 		var $content = $('<div/>');
 		if (typeof item.media === 'undefined') {
@@ -120,18 +124,36 @@ var PriceService = function($container, source) {
 		} else {
 			var properties = {};
 			PropertiesBuilder(properties)
-				.addStringProperty('name', 'Наименование')
+				.addStringProperty('id', 'Идентификатор')
+				.addStringProperty('name', 'Наименование', onChange)
+				.addNumberProperty('cost', 'Цена', onChange)
+				.addStringsProperty('currency', 'Валюта', onChange, {
+					'рубль (РФ)' : 'rub',
+					'доллар (США)' : 'usd',
+					'евро (ЕС)' : 'eur'
+				})
+				.addBooleanProperty('fresh', 'Новинка', onChange)
+				.addBooleanProperty('active', 'Активен', onChange)
+				.addTextProperty('description', 'Описание', onChange)
 				.setPropertyValues(item);
 			var propertyBrowser = new PropertyBrowser($content).set(properties);
 		}
 		return $content;
 	}
 
+	var price = $.extend({}, find(source, '295114d82cd28983'));
+
 	$('<div/>').appendTo(document.body).pdDialog({
 		title : 'Item edit',
-		content : createProperties(find(source, '295114d82cd28983')),
+		content : createProperties(price),
 		destroy : function() {
 			app.setBodyActive(true);
+		},
+		confirm : function() {
+			app.getPriceService().set(price.id, price);
+		},
+		cancel : function() {
+			delete price;
 		}
 	});
 
@@ -146,6 +168,10 @@ var PriceService = function($container, source) {
 		$.extend(price, update);
 		$container.find('#' + id).children('.pd-price-service-item').
 			text(price.name);
+		// $(window).triggerHandler($.Event('message', {
+		// 	id : 'saveprice',
+		// 	price : price
+		// }));
 		// TODO updateVIew
 	};
 	self.add = function(categoryId, price) {

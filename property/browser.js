@@ -205,6 +205,26 @@ var PropertiesBuilder = function(properties) {
 			};
 			return this;
 		},
+		addBooleanProperty : function(name, label, onChange) {
+			var $control = $('<input type="checkbox"/>');
+			if (onChange) {
+				$control.on('change', function() {
+					if ($(this).is(":checked")) {
+						onChange(createUpdateObject(name, true));
+					} else {
+						onChange(createUpdateObject(name, false));
+					}
+				})
+			} else {
+				$control.attr('disabled', 'disabled');
+			}
+			properties[name] = {
+				name : name,
+				label : label,
+				control : $control
+			};
+			return this;
+		},
 	
 		setPropertyValue : function(name, model) {
 			var names = name.split('.');
@@ -216,7 +236,13 @@ var PropertiesBuilder = function(properties) {
 				properties[name].control.children('option[value="' + value + '"]')
 					.attr('selected', 'selected');
 			} else if (properties[name].control.is('input')) {
-				properties[name].control.val(value);
+				if (properties[name].control.attr('type') === 'checkbox') {
+					if (value) {
+						properties[name].control.attr('checked', 'checked');
+					}
+				} else {
+					properties[name].control.val(value);
+				}
 			} else if (properties[name].control.attr('type') === 'color') {
 				properties[name].control.css({
 					'background-color' : value

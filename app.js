@@ -432,6 +432,7 @@ jQuery(document).ready(function($) {
 			currentController.focus();
 			
 			var menuStoreEventTimerId = 0;
+			var priceSaveEventTimerId = 0;
 			var $window = $(window);
 			$window.on('message', function(e) {
 				//console.log('message', e);
@@ -478,6 +479,21 @@ jQuery(document).ready(function($) {
 				if (e.id === 'getprice') {
 					e.price = priceService.get(e.price);
 					return;
+				}
+				if (e.id === 'saveprice') {
+					clearTimeout(priceSaveEventTimerId);
+					priceSaveEventTimerId = setTimeout(function() {
+						Logger().info('Save price...');
+						dpd.price.put(e.price, function(price, error) {
+							if (error) {
+								Logger().error('Failed to '
+									+ 'save price. Cause:\n'
+									+ error.message);
+							} else {
+								Logger().info('Price saved.');
+							}
+						});
+					}, 2000);
 				}
 				if (e.id === 'getpageitems') {
 					if (typeof e.page === 'number'
