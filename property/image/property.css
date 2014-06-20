@@ -1,0 +1,46 @@
+.pd-image-property {
+	position: relative;
+}
+.pd-image-property-content {
+	width: 100%;
+	overflow: hidden;
+}
+.pd-image-property-button {
+	width: 100%;
+	text-align: center;
+	font-size: 1em;
+	line-height: 1em;
+	overflow: hidden;
+	cursor: pointer;
+}
+.pd-image-property-menu {
+	display: none;
+	background-color: inherit;
+	border-top: 2px solid #484848;
+	border: 2px solid #181818;
+	position: absolute;
+	left: 0;
+	right: 0;
+	padding: 0.5em 0;
+	z-index: 1;
+}
+.pd-image-property-menu-item {
+	padding: 0.25em;
+	text-align: center;
+	cursor: pointer;
+}
+.pd-image-property-menu-item:hover {
+	color: #D44;
+}
+.pd-image-property-content>input {
+	background-color: transparent;
+	color: inherit;
+}
+.pd-image-property-content>img {
+	width: 100%;
+}
+.pd-image-property-content>div {
+	width: 100%;
+	text-align: center;
+	font-size: 5em;
+}

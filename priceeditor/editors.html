@@ -1,0 +1,192 @@
+<link rel="stylesheet" type="text/css" href="/css/bootstrap.css">
+<link rel="stylesheet" type="text/css" href="/css/bootstrap-theme.css">
+<div class="modal fade" id="changeFolder" tabindex="-1" role="dialog" aria-labelledby="changePriceModalLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+				<h4 class="modal-title t_dir_change_label" id="changePriceModalLabel">Редактирование папки</h4>
+			</div>
+			<form class="form-horizontal" role="form" id="changeFolderForm" enctype="multipart/form-data" method="post">
+				<div class="modal-body">
+					<div class="form-group">
+						<label for="changeFolderFormName" class="col-sm-3 control-label t_name">Название</label>
+						<div class="col-sm-8">
+							<span class='zglyphicon zglyphicon-pencil zpos-right schlangadd' title='Редактировать языки'></span>
+							<input type="text" class="form-control w90 t_name_p" id="changeFolderFormName" placeholder="Название">
+							<input type='hidden' name='changeFolderFormNameLangs' id="changeFolderFormNameLangs" />							
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="changeFolderFormDesc" class="col-sm-3 control-label t_desc">Описание</label>
+						<div class="col-sm-8">
+							<span class='zglyphicon zglyphicon-pencil zpos-right schlangadd' title='Редактировать языки'></span>
+							<textarea class="form-control w90 t_desc_p" id="changeFolderFormDesc" rows="3" placeholder="Описание"></textarea>
+							<input type='hidden' name='changeFolderFormDescLangs' id="changeFolderFormDescLangs" />							
+						</div>
+					</div>					
+				</div>
+				<div class="modal-footer">
+					<input type='hidden' name='changeFolderFormId' id="changeFolderFormId" />
+					<button type="button" class="btn btn-default t_close" data-dismiss="modal">Закрыть</button>								
+					<button type="submit" class="btn btn-primary t_save">Сохранить</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+<div class="modal fade" id="changeElement" tabindex="-1" role="dialog" aria-labelledby="changeElementModalLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+				<h4 class="modal-title t_price_element_cha_label" id="changeElementModalLabel">Редактирование номенклатуры</h4>
+			</div>
+			<form class="form-horizontal" role="form" id="changeElementForm" enctype="multipart/form-data" method="post">
+				<div class="modal-body">
+					<div class="form-group">
+						<label for="changeElementFormName" class="col-sm-3 control-label t_name">Название</label>
+						<div class="col-sm-8">
+							<span class='zglyphicon zglyphicon-pencil zpos-right schlangadd' title='Редактировать языки'></span>
+							<input type="text" class="form-control w90 t_name_p" id="changeElementFormName" placeholder="Название">
+							<input type='hidden' name='changeElementFormNameLangs' id="changeElementFormNameLangs" />							
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="changeElementFormDesc" class="col-sm-3 control-label t_desc">Описание</label>
+						<div class="col-sm-8">
+							<span class='zglyphicon zglyphicon-pencil zpos-right schlangadd' title='Редактировать языки'></span>
+							<textarea class="form-control t_desc_p w90" id="changeElementFormDesc" rows="3"  placeholder="Описание"></textarea>
+							<input type='hidden' name='changeElementFormDescLangs' id="changeElementFormDescLangs" />							
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="changeElementFormCost" class="col-sm-3 control-label t_cost">Цена</label>
+						<div class="col-sm-3" style="padding-right: 0; width: 19%;">
+							<input type="text" class="form-control t_cost_p w90" id="changeElementFormCost" placeholder="Цена" onkeyup="this.value = this.value.replace (/[^0-9.]/, '')">
+						</div>
+						<label for="changeElementFormСurrency" class="col-sm-2 control-label t_currency">Валюта</label>
+						<div class="col-sm-3">
+							<select id="changeElementFormСurrency" class="form-control t_currency"></select>
+						</div>						
+					</div>
+					<div class="form-group">
+						<label for="changeElementFormCount" class="col-sm-3 control-label t_count">Количество</label>
+						<div class="col-sm-3" style="padding-right: 0; width: 19%;">
+							<input type="text" class="form-control t_count_p w90" id="changeElementFormCount" placeholder="Количество" onkeyup="this.value = this.value.replace (/[^0-9.]/, '')">
+						</div>
+						<label for="changeElementFormDimension" class="col-sm-2 control-label t_dimension">Единица</label>
+						<div class="col-sm-3">
+							<select id="changeElementFormDimension" class="form-control t_dimension"></select>
+						</div>						
+					</div>
+					<div class="form-group">
+						<label for="changeElementFormFresh" class="col-sm-3 control-label t_fresh">Новинка</label>
+						<div class="col-sm-8">
+							<div class="checkbox">
+								<label>
+									<input type="checkbox" id="changeElementFormFresh">
+								</label>
+							</div>
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="changeElementFormActive" class="col-sm-3 control-label t_active">Активно</label>
+						<div class="col-sm-8">
+							<div class="checkbox">
+								<label>
+									<input type="checkbox" id="changeElementFormActive">
+								</label>
+							</div>
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="changeElementFormDesc" class="col-sm-3 control-label t_image">Картинка</label>
+						<div class="col-sm-8">
+							<button type="button" class="btn btn-primary selbtn uploadbtn2" title="Добавить">+</button>
+							<div id="changePriceFormImgs" class="imgview"></div>
+							<div id="remImgs"></div>
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<input type='hidden' name='changeElementFormId' id="changeElementFormId" />
+					<button type="button" class="btn btn-default t_close" data-dismiss="modal" id="changeElementClose">Закрыть</button>								
+					<button type="submit" class="btn btn-primary t_save">Сохранить</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="schLang" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+				<h4 class="modal-title" id="myModalLabel"><span class='t_row_edit'>Редактирование поля</span> "<span class='edrow'></span>"</h4>
+			</div>
+			<form class="form-horizontal" role="form" id="schLangForm" enctype="multipart/form-data" method="post">
+				<input type="hidden" id="ChaField"/>
+				<div class="modal-body">
+					<table class="table table-hover cafe-list-tbl">
+						<tbody id="cha_lngs_list"></tbody>
+					</table>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default t_close" data-dismiss="modal">Закрыть</button>
+					<button type="submit" class="btn btn-primary t_accept">Применить</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+<div class="modal fade" id="confirmMessage" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+				<h4 class="modal-title t_confirm_label" id="myModalLabel">Подтверждение</h4>
+			</div>
+			<form class="form-horizontal" role="form" id="confirmMessageForm" enctype="multipart/form-data" method="post">
+				<div class="modal-body">
+					<div class="form-group" style="text-align: center;">
+						<label id="errorlabel" class="col-sm-12" style="font-size:20px"><span class="t_confirm_text">Удалить</span> '<span class='delName'></span>'?</label>
+					</div>
+				</div>
+				<div class="modal-footer" style="margin-top:0;">
+					<input type='hidden' id="confirmMessageDelId" />
+					<button type="button" class="btn btn-default t_cancel" data-dismiss="modal">Отмена</button>
+					<button type="submit" class="btn btn-danger t_remove">Удалить</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+
+<div class="edit-icons">
+	<span class="zglyphicon zglyphicon-remove pos-right t_remove_t" title="Удалить" onclick="delClick(event, this)"></span>
+	<span class="zglyphicon zglyphicon-pencil-pen pos-right t_edit_t" title="Редактировать" onclick="changeClick(event, this)"></span>
+	<span class="zglyphicon zglyphicon-price-add pos-right" title="Добавить номенклатуру" onclick="addPrice(event, this)"></span>
+	<span class="zglyphicon zglyphicon-folder-add pos-right" title="Добавить папку" onclick="addFolder(event, this)"></span>
+</div>
+<script type="text/javascript" src="/js/bootstrap.js"></script>
+<script type="text/javascript" src="/js/bootstrap.modal.js"></script>
+<script type="text/javascript" src="/js/uuid.js"></script>
+<script type="text/javascript" src="/js/jquery-tmpl.js"></script>
+<script type="text/x-jquery-tmpl" id="cha_lngs_list_tpl">
+	<tr class='${id}' id='${id}'>
+		<input type="hidden" class='tid' name='tid' value=""/>
+		<td><div><span class='language'>${lang}</span></div></td>
+		<td><div><span class='translate'><input type='text' class='clearinput'></span></div></td>
+	</tr>
+</script>
+<script type="text/x-jquery-tmpl" id="cha_lngs_text_list_tpl">
+	<tr class='${id}' id='${id}'>
+		<input type="hidden" class='tid' name='tid' value=""/>		
+		<td><div><span class='language'>${lang}</span></div></td>
+		<td><div><span class='translate'>
+			<textarea class="clearinput" rows="3" ></textarea>		
+		</span></div></td>
+	</tr>
+</script>

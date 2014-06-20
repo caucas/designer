@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+	
+<head>
+	<title>Padmenu Designer D2T</title>
+	
+	<meta charset="UTF-8">
+
+	<link rel="stylesheet" href="public/icons/icomoon/style.css">
+	<script src="3rdparty/jquery-2.1.0.min.js"></script>
+	<script src="3rdparty/kinetic-v5.1.0.min.js"></script>
+	<script src="3rdparty/tinycolor.js"></script>
+	<script src="3rdparty/jquery.mousewheel.js"></script>
+	<link rel="stylesheet" href="http://bgrins.github.io/spectrum/spectrum.css">
+	<script src="http://bgrins.github.io/spectrum/spectrum.js"></script>
+	<script src="http://www.thepadmenu.com/dpd.js"></script>
+	<script src="http://www.thepadmenu.com/js/ajaxupload.js"></script>
+	
+	<link rel="stylesheet" href="base.css">
+	<script src="base.js"></script>
+	<script src="dragndrop/dragndrop.js"></script>
+	<link rel="stylesheet" href="toolbar/toolbar.css">
+	<script src="toolbar/toolbar.js"></script>
+	<link rel="stylesheet" href="accordion/accordion.css">
+	<script src="accordion/accordion.js"></script>
+	<link rel="stylesheet" href="ws/base.css">
+	<script src="session/manager.js"></script>
+	<script src="theme/manager.js"></script>
+	<script src="price/service.js"></script>
+	<script src="navigation/manager.js"></script>
+	<script src="property/browser.js"></script>
+	<link rel="stylesheet" href="property/image/property.css">
+	<script src="property/image/property.js"></script>
+	<script src="ws/model.js"></script>
+	<script src="ws/controllersupport.js"></script>
+	<script src="ws/controller.js"></script>
+	<script src="ws/templatecontroller.js"></script>
+	<script src="ws/previewcontroller.js"></script>
+	<script src="ws/itemfactory.js"></script>
+	<script src="ws/item.js"></script>
+	<script src="ws/items/base.js"></script>
+	<script src="ws/items/text.js"></script>
+	<script src="ws/items/image.js"></script>
+	<script src="ws/items/template.js"></script>
+	<script src="ws/items/video.js"></script>
+	<link rel="stylesheet" href="app.css">
+	<script src="app.js"></script>
+	<link rel="stylesheet" href="dialog/dialog.css">
+	<script src="dialog/dialog.js"></script>
+	<!-- Yandex.Metrika counter -->
+	<script type="text/javascript">
+		(function (d, w, c) {
+		(w[c] = w[c] || []).push(function() {
+		try {
+		w.yaCounter24599018 = new Ya.Metrika({id:24599018,
+		webvisor:true,
+		clickmap:true,
+		trackLinks:true,
+		accurateTrackBounce:true});
+		} catch(e) { }
+		});
+
+		var n = d.getElementsByTagName("script")[0],
+		s = d.createElement("script"),
+		f = function () { n.parentNode.insertBefore(s, n); };
+		s.type = "text/javascript";
+		s.async = true;
+		s.src = (d.location.protocol == "https:" ? "https:" : "http:") + "//mc.yandex.ru/metrika/watch.js";
+
+		if (w.opera == "[object Opera]") {
+		d.addEventListener("DOMContentLoaded", f, false);
+		} else { f(); }
+		})(document, window, "yandex_metrika_callbacks");
+	</script>
+	<noscript>
+		<div>
+			<img src="//mc.yandex.ru/watch/24599018" style="position:absolute; left:-9999px;" alt="" />
+		</div>
+	</noscript>
+	<!-- /Yandex.Metrika counter -->
+</head>
+
+<body class="rasta">
+	<div class="pd-layout pd-layout-west">
+		<div id="logo">padmenu designer</div>
+		<div id="panel-west">
+			<h3>Price</h3>
+			<div id="price"></div>
+		</div>
+	</div>
+	<div class="pd-layout pd-layout-center">
+		<div id="ws-toolbar"><div></div></div>
+		<div id="ws"></div>
+		<div id="ws-template"></div>
+		<div id="ws-preview"></div>
+	</div>
+	<div class="pd-layout pd-layout-east">
+		<div id="panel-east">
+			<h3>Theme</h3>
+			<div>
+				<div id="theme"></div>
+			</div>
+			<h3>Pages</h3>
+			<div>
+				<div id="navigation"></div>
+			</div>
+			<h3>Items</h3>
+			<div>
+				<div id="ws-items"></div>
+			</div>
+			<h3>Properties</h3>
+			<div>
+				<div id="properties"></div>
+			</div>
+		</div>
+	</div>
+</body>
+</html>

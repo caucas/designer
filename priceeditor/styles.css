@@ -1,0 +1,97 @@
+body {
+	color: #F5F5DC !important;
+}
+h1, h2, h3 {
+	margin-top: 0px !important; 
+	margin-bottom: 0px !important; 
+}
+h3 {
+	font-size: 14px !important;
+}
+.price-editor{
+	width:100%;
+	height:100%;
+	position:fixed;
+	background:black;
+	opacity: 0.5;
+	z-index:10000;
+	display:none;
+}
+.w90 {
+	width: 90% !important;
+}
+.schlangadd, .addicon {
+	margin-top: 9px;
+}
+.zglyphicon-remove, .zglyphicon-pencil, .zglyphicon-pencil-pen {
+	display: inline-block;
+	zoom: 0.65 !important;
+	float: right;
+	width: 26px !important;
+	height: 26px !important;
+	margin-left: 10px;
+}
+.zglyphicon {
+	width: 24px;
+	height: 24px;
+	background-repeat: no-repeat;
+	zoom: 0.8;
+	cursor: pointer;
+}
+.zpos-right {
+	float: right;
+}
+.zglyphicon-pencil {
+	background-image: url('/img/translate.png');
+	zoom: 0.9 !important;
+}
+.zglyphicon-pencil-pen {
+	background-image: url('/img/glyphicons/glyphicons_030_pencil.png');
+}
+.zglyphicon-remove {
+background-image: url('/img/glyphicons/glyphicons_197_remove.png');
+}
+.zglyphicon-price-add {
+background-image: url('/img/glyphicons/glyphicons_190_circle_plus.png');
+zoom: 0.67;
+width: 26px;
+height: 26px;
+}
+.zglyphicon-folder-add {
+background-image: url('/img/glyphicons/glyphicons_145_folder_plus.png');
+zoom: 0.7;
+width: 39px;
+}
+.modal h4, .modal label, .language{
+	color: rgb(51, 51, 51) !important;
+}
+.modal-header {
+	background-color: #ccc;
+}
+.modal-footer {
+	background-color: #eee;
+}
+.clearinput {
+	width: 100%;
+	border: 0px solid #ddd;
+}
+.pos-right {
+	float: right;
+}
+.imgview {
+	display: inline-block;
+}
+#remImgs {
+display: none;
+}
+.ccimg {
+position: absolute;
+top: 30px;
+left: 50%;
+right: auto;
+margin-left: -20%;
+z-index: 20000;
+max-width: 90%;
+max-height: 90%;
+}
+[zan-isdir=false] .zglyphicon-price-add, [zan-isdir=false] .zglyphicon-folder-add{ display:none; }
