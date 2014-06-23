@@ -295,8 +295,20 @@
 	width: 100%;
 	line-height: 1.5em;
 	font-size: 1em;
-	padding: 0 0.5em;
+	padding: 0.3em 0.6em;
 	cursor: pointer;
+}
+.pd-price-service-selected {
+	font-weight: bold;
+	-webkit-box-shadow: 0px 0px 8px 2px #181818 inset;
+    -moz-box-shadow: 0px 0px 8px 2px #181818 inset;
+    box-shadow: 0px 0px 8px 2px #181818 inset;
+    border-bottom: 1px solid #444;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+	background-color: #333;
+
 }
 .pd-price-service-category {
 	color: #D44;
@@ -318,15 +330,6 @@
 	font-size: 1em;
 	line-height: 1.5em;
 	padding-right: 0.5em;
-}
-.pd-price-service-level-icon:before {
-	content: "-";
-	color: #FD8;
-	font-family: monospace;
-	font-weight: bold;
-}
-.pd-price-service-level-collapsed .pd-price-service-level-icon:before {
-	content: "+";
 }
 
 .notification {

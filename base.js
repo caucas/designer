@@ -42,6 +42,9 @@ Function.method('swiss', function(parent) {
 });
 
 Object.matches = function(object, criteria) {
+	if (!object) {
+		return false;
+	}
 	for (var i in criteria) {
 		if (typeof object[i] === 'undefined') {
 			return false;

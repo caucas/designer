@@ -55,7 +55,6 @@ var WsPreviewController = function($viewContainer, model) {
 						});
 						$(window).triggerHandler(event);
 						template = (event.template && event.template.name) ? event.template.name : 'default';
-						console.log(template)
 					}
 					menuModel.pages[page].push(initItem({
 						type : 'template',
@@ -237,10 +236,6 @@ var WsPreviewController = function($viewContainer, model) {
 	});
 
 	pageNumber.setY(36 - pageNumber.height() / 2);
-	//pageNumber.setPosition({
-		//x : 88 - pageNumber.width() / 2,
-		//y : 36 - pageNumber.height() / 2
-	//});
 	
 	pageBoard.add(pageNumber);
 

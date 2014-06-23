@@ -348,7 +348,7 @@ var WsModel = function(model) {
 		for (var page = 0; page < data.pages.length; page++) {
 			for (var index = 0; index < data.pages[page].length; index++) {
 				var item = data.pages[page][index];
-				if (Object.matches(data.pages[page][index], query)) {
+				if (Object.matches(item, query)) {
 					items.push(item);
 				}
 			}

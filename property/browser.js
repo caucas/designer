@@ -114,7 +114,6 @@ var PropertiesBuilder = function(properties) {
 			});
 			if (onChange) {
 				$control.on('keyup', function() {
-					console.log('change')
 					onChange(createUpdateObject(name, $(this).val()));
 				});
 			} else {

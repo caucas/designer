@@ -154,6 +154,12 @@ jQuery(document).ready(function($) {
 				}
 				priceService = new PriceService($('#price'),
 					pricetree[0].object);
+				var itemUpdateEventListener = {
+					onItemUpdate : function(item) {
+						wsPreviewController.render();
+					}
+				}
+				priceService.addItemUpdateEventListener(itemUpdateEventListener);
 				Logger().info('Price loaded.');
 				onLoad();
 			});
