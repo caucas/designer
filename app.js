@@ -56,7 +56,7 @@ jQuery(document).ready(function($) {
 		var navigationManager = null;
 		var propertyBrowser = null;
 		var sessionManager = null;
-		var priceService = null;
+		var priceManager = null;
 		var wsControllerProperties = {};
 		var wsTemplateControllerProperties = {};
 		
@@ -130,10 +130,13 @@ jQuery(document).ready(function($) {
 				});
 			}
 			themeManager.setPreviewMode(previewMode);
-			wsController.setScale(Math.min(wsController.getView().getWidth() / (wsModel.getWidth() + 20),
+			wsController.setScale(Math.min(wsController.getView().getWidth() / 
+				(wsModel.getWidth() + 20),
 				wsController.getView().getHeight() / (wsModel.getHeight() + 20)));
-			wsPreviewController.setScale(Math.min(wsPreviewController.getView().getWidth() / (wsModel.getWidth() + 20),
-				wsPreviewController.getView().getHeight() / (wsModel.getHeight() + 20)));
+			wsPreviewController.setScale(Math.min(wsPreviewController.getView()
+				.getWidth() / (wsModel.getWidth() + 20),
+				wsPreviewController.getView().getHeight() / (wsModel.getHeight()
+				 + 20)));
 		}
 		
 		
@@ -152,14 +155,22 @@ jQuery(document).ready(function($) {
 					Logger().fatal('Failed to load price. Cause:\n'
 						+ 'Price is empty');
 				}
-				priceService = new PriceService($('#price'),
+				priceManager = new PriceManager($('#price'),
 					pricetree[0].object);
 				var itemUpdateEventListener = {
 					onItemUpdate : function(item) {
+						wsPreviewController.generate(priceManager.get());
+						wsPreviewController.render();
+					}
+				};
+				var itemRemoveEventListener = {
+					onItemRemove : function(item) {
+						wsPreviewController.generate(priceManager.get());
 						wsPreviewController.render();
 					}
 				}
-				priceService.addItemUpdateEventListener(itemUpdateEventListener);
+				priceManager.addItemUpdateEventListener(itemUpdateEventListener);
+				priceManager.addItemRemoveEventListener(itemRemoveEventListener);
 				Logger().info('Price loaded.');
 				onLoad();
 			});
@@ -184,7 +195,7 @@ jQuery(document).ready(function($) {
 		}
 		
 		function loadCafe(onLoad) {
-			dpd.cafe.get(wsModel.get().cafe, function(c, eroor) {
+			dpd.cafe.get(wsModel.get().cafe, function(c, error) {
 				cafe = c;
 				loadThemes(onLoad);
 			});
@@ -230,7 +241,7 @@ jQuery(document).ready(function($) {
 			if (!detailTemplate) {
 				return;
 			}
-			var price = priceService.get();
+			var price = priceManager.get();
 			var menu = wsModel.get();
 			menu.details = {};
 			function iteratePrice(destination, source) {
@@ -482,8 +493,12 @@ jQuery(document).ready(function($) {
 					e.template = themeManager.getTemplate(e.template);
 					return;
 				}
+				if (e.id === 'gettemplates') {
+					e.templates = themeManager.getTemplates();
+					return;
+				}
 				if (e.id === 'getprice') {
-					e.price = priceService.get(e.price);
+					e.price = priceManager.get(e.price);
 					return;
 				}
 				if (e.id === 'saveprice') {
@@ -606,7 +621,7 @@ jQuery(document).ready(function($) {
 								init();
 								themeManager.setTemplates(templates, function() {
 									if (previewMode) {
-										wsPreviewController.generate(priceService.get());
+										wsPreviewController.generate(priceManager.get());
 									}
 								});
 							} else {
@@ -953,8 +968,8 @@ jQuery(document).ready(function($) {
 			getNavigationManager : function() {
 				return navigationManager;
 			},
-			getPriceService : function() {
-				return priceService;
+			getPriceManager : function() {
+				return priceManager;
 			},
 			setBodyActive : setBodyActive
 		};

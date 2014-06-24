@@ -38,13 +38,17 @@ var WsPreviewController = function($viewContainer, model) {
 			}
 			if (typeof price[key] === 'object' && !Array.isArray(price[key])) {
 				if (typeof price[key].media === 'undefined') {
-					menuModel.pages[page].push(initItem({
-						type : 'template',
-						config : {
-							template : 'link' + (level > 2 ? 2 : level),
-							price : key
-						}
-					}));
+					if ((typeof price[key].active !== 'undefined' 
+						&& price[key].active) || typeof price[key].active 
+						=== 'undefined') {
+						menuModel.pages[page].push(initItem({
+							type : 'template',
+							config : {
+								template : 'link' + (level > 2 ? 2 : level),
+								price : key
+							}
+						}));
+					}
 					addItems(price[key], level + 1);
 				} else {
 					var template = null;
@@ -54,15 +58,20 @@ var WsPreviewController = function($viewContainer, model) {
 							template : price[key].template
 						});
 						$(window).triggerHandler(event);
-						template = (event.template && event.template.name) ? event.template.name : 'default';
+						template = (event.template && event.template.name) ? 
+							event.template.name : 'default';
 					}
-					menuModel.pages[page].push(initItem({
-						type : 'template',
-						config : {
-							template : template ? template : 'default',
-							price : key
-						}
-					}));
+					if ((typeof price[key].active !== 'undefined' 
+						&& price[key].active) || typeof price[key].active 
+						=== 'undefined') {
+						menuModel.pages[page].push(initItem({
+							type : 'template',
+							config : {
+								template : template ? template : 'default',
+								price : key
+							}
+						}));
+					}
 				}
 			}
 		}

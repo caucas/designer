@@ -80,7 +80,7 @@ var WsModel = function(model) {
 			item.y = data.padding.top;
 		} else {
 			var prevItem = data.pages[page][index - 1];
-			if (prevItem.type === 'ps'/* && item.type != 'ps' */) {
+			if (prevItem.type === 'ps' && item.type != 'ps') {
 				return null;
 			}
 			if ((prevItem.type === 'ls'

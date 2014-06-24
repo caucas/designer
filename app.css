@@ -53,9 +53,21 @@
 .pd-toolbar-item {
 	color: #F5F5DC;
 	border: 0.1em solid #333;
+	background: transparent;
+	border: 0;
 }
 .pd-toolbar-item:hover {
 	color: #D44;
+}
+.pd-toolbar-item:focus {
+	outline: 0;
+}
+.pd-toolbar-item:disabled {
+	opacity: 0.3;
+}
+.pd-toolbar-item:disabled:hover{
+	color: #F5F5DC;
+	cursor: default;
 }
 .pd-toolbar-item-active {
 	background-color: #222;
@@ -283,14 +295,22 @@
 	height: 1.3em;
 }
 
-.pd-price-service {
+.pd-price-manager {
+	height: 96%;
+}
+
+.pd-price-manager-toolbar {
+	padding: 0.5em 1em;
+}
+
+.pd-price-manager-content {
 	background-color: #222;
 	padding: 0.5em 1em;
-	height: 96%;
+	height: 100%;
 	overflow: auto;
 }
 
-.pd-price-service-item {
+.pd-price-manager-item {
 	color: #9C9;
 	width: 100%;
 	line-height: 1.5em;
@@ -298,7 +318,7 @@
 	padding: 0.3em 0.6em;
 	cursor: pointer;
 }
-.pd-price-service-selected {
+.pd-price-manager-selected {
 	font-weight: bold;
 	-webkit-box-shadow: 0px 0px 8px 2px #181818 inset;
     -moz-box-shadow: 0px 0px 8px 2px #181818 inset;
@@ -310,22 +330,22 @@
 	background-color: #333;
 
 }
-.pd-price-service-category {
+.pd-price-manager-category {
 	color: #D44;
 }
-.pd-price-service-level {
+.pd-price-manager-level {
 	margin: 0.25em 0;
 }
-.pd-price-service-level-1 {
+.pd-price-manager-level-1 {
 	padding-left: 1em;
 }
-.pd-price-service-level-2 {
+.pd-price-manager-level-2 {
 	padding-left: 1em;
 }
-.pd-price-service-level-3 {
+.pd-price-manager-level-3 {
 	padding-left: 1em;
 }
-.pd-price-service-level-icon {
+.pd-price-manager-level-icon {
 	float: left;
 	font-size: 1em;
 	line-height: 1.5em;

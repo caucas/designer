@@ -42,14 +42,12 @@ Function.method('swiss', function(parent) {
 });
 
 Object.matches = function(object, criteria) {
-	if (!object) {
-		return false;
-	}
 	for (var i in criteria) {
 		if (typeof object[i] === 'undefined') {
 			return false;
 		}
-		if (typeof object[i] === 'object' || typeof object[i] === 'array') {
+		if (object[i] !== null && (typeof object[i] === 'object' 
+			|| typeof object[i] === 'array')) {
 			if (!Object.matches(object[i], criteria[i])) {
 				return false;
 			}

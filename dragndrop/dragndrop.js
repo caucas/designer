@@ -47,11 +47,15 @@
 				left : e.pageX - initialPointerPosition.left,
 				top : e.pageY - initialPointerPosition.top
 			};
+
 			
 			var dragObjectPosition = {
 				left : e.pageX - pointerOffset.left,
 				top : e.pageY - pointerOffset.top,
 			};
+			if (typeof elementOptions.dragDistance === 'function') {
+				elementOptions.dragDistance(dragObjectPosition);
+			}
 			$dragObject.css(dragObjectPosition);
 			$element.triggerHandler($.Event('drag', {
 				dragObject : $dragObject,
