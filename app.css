@@ -310,6 +310,10 @@
 	overflow: auto;
 }
 
+.pd-price-manager-draggable {
+	background-color: #222;
+}
+
 .pd-price-manager-item {
 	color: #9C9;
 	width: 100%;
@@ -350,6 +354,30 @@
 	font-size: 1em;
 	line-height: 1.5em;
 	padding-right: 0.5em;
+}
+
+.pd-price-manager-item-create {
+	position: absolute;
+	height: auto;
+	width: auto;
+	overflow: hidden;
+	-webkit-box-shadow: 0px 0px 4px 1px #181818;
+    -moz-box-shadow: 0px 0px 4px 1px #181818;
+    box-shadow: 0px 0px 4px 1px #181818;
+}
+
+.pd-price-manager-item-create-item {
+	border-bottom: 1px solid #000;
+	background-color: #333;
+	font-size: 1em;
+	line-height: 2em;
+	width: auto;
+	height: auto;
+	padding: 0 1em;
+	cursor: pointer;
+}
+.pd-price-manager-item-create-item:hover {
+	background-color: #222;
 }
 
 .notification {

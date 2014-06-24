@@ -137,7 +137,7 @@
 						&& $item.hasClass('pd-toolbar-item-active');
 				});
 			},
-			disableOption : function(name, value) {
+			optionDisabled : function(name, value) {
 				var $item = members.public.getElement.apply(this, [name]);
 				if ($item.length && (value === 'false' || !value)) {
 					$item.removeAttr('disabled');

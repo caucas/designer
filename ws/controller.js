@@ -84,7 +84,6 @@ var WsController = function($viewContainer, model, theme) {
 			var placeholderItem = self.getPlaceholderItem();
 			placeholderItem.x = position.x;
 			placeholderItem.y = position.y;
-			console.log(placeholderItem.p, placeholderItem.i)
 			if (placeholderItem.p !== page || placeholderItem.i === -1) {
 				model.add(page, placeholderItem);
 			} else {
@@ -487,7 +486,6 @@ var WsController = function($viewContainer, model, theme) {
 		return true;
 	}
 	self.render = function(index) {
-		console.log('render')
 		var items = model.get(page);
 		if (items.length) {
 			if (renderedItems.length === 0) {

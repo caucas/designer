@@ -5,12 +5,39 @@ var PriceManager = function($container, source) {
 
 	var $content = $('<div class="pd-price-manager-content"/>');
 
-	var $priceToolbar = $('<div class="pd-price-manager-toolbar"/>').pdToolbar({
+	$content.on('click', function(e) {
+		var $target = $(e.target);
+		if ($target.hasClass('pd-price-manager-item')) {
+			var item = $target.parent().data('item');
+			self.select(item.id);
+		} else {
+			self.select();
+		}
+	});
+
+	var $toolbar = $('<div class="pd-price-manager-toolbar"/>').pdToolbar({
 		source : [{
 			'name' : 'new',
 			'type' : 'class',
 			'value' : 'icon-icomoon-plus3',
 			'click' : function() {
+				var $container = $('<div class="pd-price-'
+					+ 'manager-item-create"/>');
+				$container.css({
+					'left' : $(this).offset().left + $(this).outerWidth(),
+					'top' : $(this).offset().top + $(this).outerHeight()
+				});
+				$('<div class="pd-price-manager-item-create-item">'
+					+ 'price</div>')
+					.click(function() {
+						$container.remove();
+					}).appendTo($container);
+				$('<div class="pd-price-manager-item-create-item">'
+					+ 'category</div>')
+					.click(function() {
+						$container.remove();
+					}).appendTo($container);
+				$container.appendTo(document.body);
 			}
 		}, {
 			'name' : 'edit',
@@ -18,59 +45,20 @@ var PriceManager = function($container, source) {
 			'value' : 'icon-icomoon-pencil2',
 			'disabled' : 'true',
 			'click' : function() {
-				var templatesStrings = {};
-
-				var event = $.Event('message', {
-					id : 'gettemplates'
-				})
-				$(window).triggerHandler(event);
-
-				for (var key in event.templates) {
-					templatesStrings[event.templates[key].name] = 
-						event.templates[key].name;
-				}
-
-				var newItem = $.extend({}, self.getSelected());
-
-				function onChange(update) {
-					$.extend(newItem, update);
-				}
-
-				var $itemProperties = $('<div/>');
-				var properties = {};
-				if (typeof newItem.media === 'undefined') {
-					PropertiesBuilder(properties)
-						.addStringProperty('id', 'Identificator')
-						.addStringProperty('name', 'Name', onChange)
-						.addTextProperty('description', 'Description', onChange)
-						.setPropertyValues(newItem);
-				} else {
-					PropertiesBuilder(properties)
-						.addStringProperty('id', 'Identificator')
-						.addStringProperty('name', 'Name', onChange)
-						.addStringsProperty('template', 'Template', onChange,
-							templatesStrings)
-						.addNumberProperty('cost', 'Cost', onChange)
-						.addBooleanProperty('fresh', 'New', onChange)
-						.addBooleanProperty('active', 'Active', onChange)
-						.addTextProperty('description', 'Description', onChange)
-						.setPropertyValues(newItem);
-				}
-				var propertyBrowser = new PropertyBrowser($itemProperties)
-					.set(properties);
+				var item = $.extend({}, self.getSelected());
 
 				app.setBodyActive(false);
-				$('<div/>').appendTo(document.body).pdDialog({
+
+				var $dialog = $('<div/>');
+				$dialog.appendTo(document.body);
+				$dialog.pdDialog({
 					title : 'Item edit',
-					content : $itemProperties,
+					content : buildProperties(item),
 					destroy : function() {
 						app.setBodyActive(true);
 					},
 					confirm : function() {
-						self.set(newItem.id, newItem);
-					},
-					cancel : function() {
-						delete newItem;
+						self.set(item.id, item);
 					}
 				});
 			}
@@ -80,16 +68,54 @@ var PriceManager = function($container, source) {
 			'value' : 'icon-icomoon-trash',
 			'disabled' : 'true',
 			'click' : function() {
-				var item = self.getSelected();
-				$content.find('#' + item.id).remove();
-				self.remove(item.id);
-				$priceToolbar.pdToolbar('disableOption', 'edit', 'true');
-				$priceToolbar.pdToolbar('disableOption', 'remove', 'true');
+				self.remove();
 			}
 		}]
 	});
-	$container.append($priceToolbar);
+	$container.append($toolbar);
 	$container.append($content);
+
+	function buildProperties(item) {
+		function onChange(update) {
+			$.extend(item, update);
+		}
+
+		var $properties = $('<div/>');
+		var properties = {};
+		if (typeof item.media === 'undefined') {
+			PropertiesBuilder(properties)
+				.addStringProperty('id', 'Identificator')
+				.addStringProperty('name', 'Name', onChange)
+				.addTextProperty('description', 'Description', onChange)
+				.setPropertyValues(item);
+		} else {
+			var templates = {};
+
+			var event = $.Event('message', {
+				id : 'gettemplates'
+			});
+			$(window).triggerHandler(event);
+
+			for (var key in event.templates) {
+				templates[event.templates[key].name] = 
+					event.templates[key].name;
+			}
+
+			PropertiesBuilder(properties)
+				.addStringProperty('id', 'Identificator')
+				.addStringProperty('name', 'Name', onChange)
+				.addStringsProperty('template', 'Template', onChange,
+					templates)
+				.addNumberProperty('cost', 'Cost', onChange)
+				.addBooleanProperty('fresh', 'New', onChange)
+				.addBooleanProperty('active', 'Active', onChange)
+				.addTextProperty('description', 'Description', onChange)
+				.setPropertyValues(item);
+		}
+		var propertyBrowser = new PropertyBrowser($properties)
+			.set(properties);
+		return $properties;
+	}
 
 	function addPrice($category, item) {
 		var level = $category.data('level');
@@ -108,6 +134,7 @@ var PriceManager = function($container, source) {
 				var $dragObject = $item.parent().clone();
 				$dragObject.find('.pd-price-manager-selected')
 					.removeClass('pd-price-manager-selected');
+				$dragObject.addClass('pd-price-manager-draggable');
 				return $dragObject;
 			},
 			dragDistance : function(offset) {
@@ -115,15 +142,6 @@ var PriceManager = function($container, source) {
 			}
 		});
 
-
-		$item.on('click', function() {
-			$content.find('.pd-price-manager-selected')
-				.removeClass('pd-price-manager-selected');
-			$(this).addClass('pd-price-manager-selected');
-			$priceToolbar.pdToolbar('disableOption', 'edit', 'false');
-			$priceToolbar.pdToolbar('disableOption', 'remove', 'false');
-		});
-		
 		$level.append($item);
 		$category.append($level);
 		if (typeof item.media === 'undefined') {
@@ -173,28 +191,27 @@ var PriceManager = function($container, source) {
 		return null;
 	}
 
-	function remove(source, id) {
-		for (var key in source) {
-			if (key === 'category') {
-				continue;
-			}
-			if (typeof source[key] === 'object') {
-				if (key === id) {
-					return delete source[key];
-				}
-				if (typeof source[key].media === 'undefined') {
-					var item = find(source[key], id);
-					if (item !== null) {
-						return delete source[key][id];
-					}
-				}
-			}
-		}
-		return false;
+	function editButtonsDisabled(value) {
+		$toolbar.pdToolbar('optionDisabled', 'edit', value);
+		$toolbar.pdToolbar('optionDisabled', 'remove', value);
 	}
 
 	self.get = function(id) {
 		return typeof id === 'undefined' ? source : find(source, id);
+	};
+	self.select = function(id) {
+		$content.find('.pd-price-manager-selected')
+				.removeClass('pd-price-manager-selected');
+		if (typeof id !== 'undefined') {
+			var $item = $content.find('#' + id)
+				.children('.pd-price-manager-item');
+			if ($item.length) {
+				$item.addClass('pd-price-manager-selected');
+				editButtonsDisabled(false);
+			}
+		} else {
+			editButtonsDisabled(true);
+		}
 	};
 	self.getSelected = function() {
 		return find(source , $content.find('.pd-price-manager-selected')
@@ -216,9 +233,12 @@ var PriceManager = function($container, source) {
 		self.fireItemUpdateEvent(price);
 	};
 	self.remove = function(id) {
-		var item = self.get(id);
-		var removedItem = $.extend({}, item);
-		remove(source, id);
+		var removedItem = $.extend({}, self.get(id));
+		if (typeof id === 'undefined') {
+			//TODO remove selected item
+		} else {
+			//TODO remove item
+		}
 		self.fireItemRemoveEvent(removedItem);
 	};
 	self.add = function(categoryId, price) {

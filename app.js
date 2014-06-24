@@ -165,8 +165,7 @@ jQuery(document).ready(function($) {
 				};
 				var itemRemoveEventListener = {
 					onItemRemove : function(item) {
-						wsPreviewController.generate(priceManager.get());
-						wsPreviewController.render();
+						//TODO remove item
 					}
 				}
 				priceManager.addItemUpdateEventListener(itemUpdateEventListener);
