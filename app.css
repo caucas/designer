@@ -59,16 +59,6 @@
 .pd-toolbar-item:hover {
 	color: #D44;
 }
-.pd-toolbar-item:focus {
-	outline: 0;
-}
-.pd-toolbar-item:disabled {
-	opacity: 0.3;
-}
-.pd-toolbar-item:disabled:hover{
-	color: #F5F5DC;
-	cursor: default;
-}
 .pd-toolbar-item-active {
 	background-color: #222;
 	border-color: #000;

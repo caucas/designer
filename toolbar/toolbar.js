@@ -62,21 +62,14 @@
 				$self.children('.pd-toolbar-item').remove();
 				
 			    for (var i = 0; i < source.length; ++i) {
-					var $item = null;
-
+					var $item = $('<div/>');
+					$item.data('pdToolbarItem', source[i]);
+					
 					if (source[i].type == 'separator') {
-						$item = $('<div/>');
 						$item.addClass('pd-toolbar-item-separator');
 						$item.css(members.private.separatorStyles);
 					} else {
-						$item = $('<button/>');
 						$item.addClass('pd-toolbar-item');
-
-						if (typeof source[i].disabled !== 'undefined' 
-							&& source[i].disabled) {
-							$item.attr('disabled', 'disabled');
-						}
-
 						switch (source[i].type) {
 						case 'class':
 							$item.addClass(source[i].value);
@@ -91,8 +84,6 @@
 							$item.text(source[i].name);
 							break;
 						}
-
-						$item.data('pdToolbarItem', source[i]);
 					
 						$item.on('click.pdToolbarItem', function() {
 							var $item = $(this);
@@ -136,14 +127,6 @@
 					return $item.data('pdToolbarItem').mode == 'option'
 						&& $item.hasClass('pd-toolbar-item-active');
 				});
-			},
-			optionDisabled : function(name, value) {
-				var $item = members.public.getElement.apply(this, [name]);
-				if ($item.length && (value === 'false' || !value)) {
-					$item.removeAttr('disabled');
-				} else {
-					$item.attr('disabled', 'disabled');
-				}
 			},
 			selectOption : function(name) {
 				var $item = members.public.getElement.apply(this, [name]);

@@ -15,30 +15,33 @@ var PriceManager = function($container, source) {
 		}
 	});
 
+	var $newItemButton = $('<div class="icon-icomoon-plus3"/>');
+
+		$newItemButton.on('click', function() {
+		var $container = $('<div class="pd-price-'
+						+ 'manager-item-create"/>');
+		$container.css({
+			'left' : $(this).offset().left + $(this).outerWidth(),
+			'top' : $(this).offset().top + $(this).outerHeight()
+		});
+		$('<div class="pd-price-manager-item-create-item">'
+			+ 'price</div>')
+			.on('click', function() {
+				$container.remove();
+			}).appendTo($container);
+		$('<div class="pd-price-manager-item-create-item">'
+			+ 'category</div>')
+			.on('click', function() {
+				$container.remove();
+			}).appendTo($container);
+		$container.appendTo(document.body);
+	});
+
 	var $toolbar = $('<div class="pd-price-manager-toolbar"/>').pdToolbar({
 		source : [{
 			'name' : 'new',
-			'type' : 'class',
-			'value' : 'icon-icomoon-plus3',
-			'click' : function() {
-				var $container = $('<div class="pd-price-'
-					+ 'manager-item-create"/>');
-				$container.css({
-					'left' : $(this).offset().left + $(this).outerWidth(),
-					'top' : $(this).offset().top + $(this).outerHeight()
-				});
-				$('<div class="pd-price-manager-item-create-item">'
-					+ 'price</div>')
-					.click(function() {
-						$container.remove();
-					}).appendTo($container);
-				$('<div class="pd-price-manager-item-create-item">'
-					+ 'category</div>')
-					.click(function() {
-						$container.remove();
-					}).appendTo($container);
-				$container.appendTo(document.body);
-			}
+			'type' : 'html',
+			'value' : $newItemButton
 		}, {
 			'name' : 'edit',
 			'type' : 'class',
@@ -126,22 +129,22 @@ var PriceManager = function($container, source) {
 		var $level = $('<div class="pd-price-manager-level pd-price-manager-level-'
 				+ level + '"/>');
 
-		var $item = $('<div class="pd-price-manager-item">'
-			+ item.name + '</div>');
-		
-		$item.pdDraggable({
+		$level.pdDraggable({
 			dragObject : function() {
-				var $dragObject = $item.parent().clone();
+				var $dragObject = $level.clone();
 				$dragObject.find('.pd-price-manager-selected')
 					.removeClass('pd-price-manager-selected');
 				$dragObject.addClass('pd-price-manager-draggable');
 				return $dragObject;
 			},
 			dragDistance : function(offset) {
-				offset.left = $item.parent().position().left;
+				offset.left = $level.position().left;
 			}
 		});
 
+		var $item = $('<div class="pd-price-manager-item">'
+			+ item.name + '</div>');
+		
 		$level.append($item);
 		$category.append($level);
 		if (typeof item.media === 'undefined') {
@@ -151,6 +154,44 @@ var PriceManager = function($container, source) {
 		}
 		$level.attr('id', item.id);
 		$level.data('item', item);
+
+
+		var $lastDoppable = null;
+		$container.pdDroppable({
+			accept : function($dragObject) {
+				return $dragObject.hasClass('pd-price-manager-draggable');
+			},
+			over : function(e) {
+			},
+			out : function(e) {
+			},
+			move : function(e) {
+				var $dragObject = e.dragObject;
+				var $targetObject = $(document.elementFromPoint(
+					$dragObject.offset().left + $dragObject.width() / 2, 
+					$dragObject.offset().top - 1));
+				if ($lastDoppable !== $targetObject) {
+					if ($lastDoppable) {
+						$lastDoppable.css({
+							'border-bottom' : '',
+							'background' : ''
+						});
+					}
+					$lastDoppable = $targetObject;
+				}
+				if ($targetObject.hasClass('pd-price-manager-category')) {
+					console.log('category')
+					$targetObject.css({
+						'background' : 'rgba(153,204,153,0.5)'
+					});
+				} else if ($targetObject.hasClass('pd-price-manager-item')) {
+					console.log('item')
+					$targetObject.css({
+						'border-bottom' : '1px dotted #9C9'
+					});
+				}
+			}
+		});
 		
 		return $level;
 	}
@@ -191,26 +232,16 @@ var PriceManager = function($container, source) {
 		return null;
 	}
 
-	function editButtonsDisabled(value) {
-		$toolbar.pdToolbar('optionDisabled', 'edit', value);
-		$toolbar.pdToolbar('optionDisabled', 'remove', value);
-	}
-
 	self.get = function(id) {
 		return typeof id === 'undefined' ? source : find(source, id);
 	};
 	self.select = function(id) {
 		$content.find('.pd-price-manager-selected')
 				.removeClass('pd-price-manager-selected');
-		if (typeof id !== 'undefined') {
-			var $item = $content.find('#' + id)
-				.children('.pd-price-manager-item');
-			if ($item.length) {
-				$item.addClass('pd-price-manager-selected');
-				editButtonsDisabled(false);
-			}
-		} else {
-			editButtonsDisabled(true);
+		var $item = $content.find('#' + id)
+			.children('.pd-price-manager-item');
+		if ($item.length) {
+			$item.addClass('pd-price-manager-selected');
 		}
 	};
 	self.getSelected = function() {
