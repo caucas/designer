@@ -138,7 +138,7 @@ var PriceManager = function($container, source) {
 				return $dragObject;
 			},
 			dragDistance : function(offset) {
-				offset.left = $level.position().left;
+				//offset.left = $level.position().left;
 			}
 		});
 
@@ -189,6 +189,17 @@ var PriceManager = function($container, source) {
 					$targetObject.css({
 						'border-bottom' : '1px dotted #9C9'
 					});
+				}
+			},
+			drop : function(e) {
+				if ($lastDoppable) {
+					$lastDoppable.css({
+						'border-bottom' : '',
+						'background' : ''
+					});
+					console.log(e.dragObject.attr('id'))
+					$('#' + e.dragObject.attr('id'))
+						.insertAfter($lastDoppable.parent());
 				}
 			}
 		});
