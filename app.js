@@ -970,7 +970,8 @@ jQuery(document).ready(function($) {
 			getPriceManager : function() {
 				return priceManager;
 			},
-			setBodyActive : setBodyActive
+			setBodyActive : setBodyActive,
+			showLoading : showLoading
 		};
 	})();
 });

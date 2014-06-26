@@ -48,22 +48,39 @@ var PriceManager = function($container, source) {
 			'value' : 'icon-icomoon-pencil2',
 			'disabled' : 'true',
 			'click' : function() {
-				var item = $.extend({}, self.getSelected());
+				var selectedItem = self.getSelected();
+				if (typeof selectedItem.media !== 'undefined') { 
+					dpd.price.get(selectedItem.id, function(price, error) {
+						if (!error) {
+							price.name = price.tname['2af6d93760ad484e'];
+							app.setBodyActive(false);
 
-				app.setBodyActive(false);
-
-				var $dialog = $('<div/>');
-				$dialog.appendTo(document.body);
-				$dialog.pdDialog({
-					title : 'Item edit',
-					content : buildProperties(item),
-					destroy : function() {
-						app.setBodyActive(true);
-					},
-					confirm : function() {
-						self.set(item.id, item);
-					}
-				});
+							var $dialog = $('<div/>');
+							$dialog.appendTo(document.body);
+							$dialog.pdDialog({
+								title : 'Item edit',
+								content : buildProperties(price),
+								destroy : function() {
+									app.setBodyActive(true);
+								},
+								confirm : function() {
+									//self.set(item.id, item);
+									price.tname['2af6d93760ad484e'] = price.name;
+									dpd.price.put(price, function(price, error) {
+										if (error) {
+											Logger().error('Failed to save price. Cause:\n'
+												+ error.message);
+										} else {
+											Logger().info('Price saved');
+											reload();
+										}
+									});
+								}
+							}); 
+						}
+					});
+			} else {
+				
 			}
 		}, {
 			'name' : 'remove',
@@ -73,10 +90,45 @@ var PriceManager = function($container, source) {
 			'click' : function() {
 				self.remove();
 			}
+		}, {
+			'name' : 'reload',
+			'type' : 'class',
+			'value' : 'icon-icomoon-spinner5',
+			'disabled' : 'true',
+			'click' : function() {
+				reload();
+			}
 		}]
 	});
 	$container.append($toolbar);
 	$container.append($content);
+
+	function reload() {
+		app.setBodyActive(false);
+		app.showLoading(true);
+		dpd.pricetree.get({
+			'cafe' : app.getWsModel().get().cafe,
+			'object' : '1'
+		}, function(pricetree, error) {
+			if (error) {
+				app.setBodyActive(true);
+				app.showLoading(false);
+			}
+			if (!pricetree[0] || !pricetree[0].object) {
+				app.setBodyActive(true);
+				app.showLoading(false);
+				Logger().fatal('Failed to load price. Cause:\n'
+					+ 'Price is empty');
+			} else {
+				source = pricetree[0].object;
+				$content.empty();
+				createTree(source, $content, 0);
+				self.fireItemUpdateEvent(null);
+				app.setBodyActive(true);
+				app.showLoading(false);
+			}
+		});
+	}
 
 	function buildProperties(item) {
 		function onChange(update) {
@@ -109,7 +161,7 @@ var PriceManager = function($container, source) {
 				.addStringProperty('name', 'Name', onChange)
 				.addStringsProperty('template', 'Template', onChange,
 					templates)
-				.addNumberProperty('cost', 'Cost', onChange)
+				.addStringProperty('cost', 'Cost', onChange)
 				.addBooleanProperty('fresh', 'New', onChange)
 				.addBooleanProperty('active', 'Active', onChange)
 				.addTextProperty('description', 'Description', onChange)
@@ -156,7 +208,7 @@ var PriceManager = function($container, source) {
 		$level.data('item', item);
 
 
-		var $lastDoppable = null;
+		var $lastDroppable = null;
 		$container.pdDroppable({
 			accept : function($dragObject) {
 				return $dragObject.hasClass('pd-price-manager-draggable');
@@ -170,37 +222,41 @@ var PriceManager = function($container, source) {
 				var $targetObject = $(document.elementFromPoint(
 					$dragObject.offset().left + $dragObject.width() / 2, 
 					$dragObject.offset().top - 1));
-				if ($lastDoppable !== $targetObject) {
-					if ($lastDoppable) {
-						$lastDoppable.css({
+				if ($lastDroppable !== $targetObject) {
+					if ($lastDroppable) {
+						$lastDroppable.css({
 							'border-bottom' : '',
 							'background' : ''
 						});
 					}
-					$lastDoppable = $targetObject;
+					$lastDroppable = $targetObject;
 				}
 				if ($targetObject.hasClass('pd-price-manager-category')) {
-					console.log('category')
-					$targetObject.css({
-						'background' : 'rgba(153,204,153,0.5)'
-					});
+					if ($targetObject.next().children().first().hasClass('pd-price-manager-item')) {
+						$targetObject.css({
+							'border-bottom' : '1px dotted #9C9'
+						});
+					} else {
+						$targetObject.css({
+							'background' : 'rgba(153,204,153,0.5)'
+						});
+					}
 				} else if ($targetObject.hasClass('pd-price-manager-item')) {
-					console.log('item')
 					$targetObject.css({
 						'border-bottom' : '1px dotted #9C9'
 					});
 				}
 			},
 			drop : function(e) {
-				if ($lastDoppable) {
-					$lastDoppable.css({
-						'border-bottom' : '',
-						'background' : ''
-					});
-					console.log(e.dragObject.attr('id'))
-					$('#' + e.dragObject.attr('id'))
-						.insertAfter($lastDoppable.parent());
+				var $dragObject = e.dragObject;
+				var dragObjectModel = find(source, $dragObject.attr('id'));
+				if ($lastDroppable.hasClass('pd-price-manager-category')) {
+					var targetModel = find(source, $lastDroppable.parent().attr('id'));
+					targetModel[dragObjectModel.id] = dragObjectModel;
 				}
+				delete dragObjectModel.category[dragObjectModel.id];
+				$content.empty();
+				createTree(source, $content, 0);
 			}
 		});
 		
@@ -274,14 +330,19 @@ var PriceManager = function($container, source) {
 		// TODO updateVIew
 		self.fireItemUpdateEvent(price);
 	};
-	self.remove = function(id) {
-		var removedItem = $.extend({}, self.get(id));
-		if (typeof id === 'undefined') {
-			//TODO remove selected item
+	self.remove = function() {
+		var selectedItem = self.getSelected();
+		if (typeof selectedItem.media === 'undefined') {
+
 		} else {
-			//TODO remove item
+			app.setBodyActive(false);
+			app.showLoading(true);
+			dpd.price.del({
+				'id' : selectedItem.id
+			}, function(price, error) {
+				reload();
+			});
 		}
-		self.fireItemRemoveEvent(removedItem);
 	};
 	self.add = function(categoryId, price) {
 		var category = self.get(categoryId);
