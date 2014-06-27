@@ -12,6 +12,7 @@ var PriceManager = function($container, source) {
 			self.select(item.id);
 		} else {
 			self.select();
+			$('.pd-price-manager-item-create').remove();
 		}
 	});
 
@@ -28,11 +29,151 @@ var PriceManager = function($container, source) {
 			+ 'price</div>')
 			.on('click', function() {
 				$container.remove();
+				var parentId = (self.getSelected() && typeof self.getSelected().media === 'undefined') ? self
+					.getSelected().id : null;
+				if (parentId === null) {
+					return;
+				}
+				var item = {
+					name : '',
+					cost : '',
+					description : '',
+					tname : {},
+					tdescription : {},
+					fresh : true,
+					active : true,
+					template : 'default',
+					cafe : app.getWsModel().get().cafe,
+					count : 0,
+					fields : [],
+					media : [],
+					parent : parentId
+				};
+
+				app.setBodyActive(false);
+				var $dialog = $('<div/>');
+				$dialog.appendTo(document.body);
+				$dialog.pdDialog({
+					title : 'Price create',
+					content : buildProperties(item),
+					destroy : function() {
+						app.setBodyActive(true);
+					},
+					confirm : function() {
+						item.tname['2af6d93760ad484e'] = item.name;
+						item.tdescription['2af6d93760ad484e'] = item.description;
+						dpd.price.post(item, function(price, error) {
+							if (error) {
+								Logger().error('Failed to save price. Cause:\n'
+									+ error.message);
+							} else {
+								dpd.pricetree.get({
+									'cafe' : price.cafe
+								}, function(pricetree, error) {
+									if (error) {
+										Logger().error('Failed to save price. Cause:\n'
+										+ error.message);
+									} else {
+										function getItem(source, id) {
+											for (var key in source) {
+												if (source[key].id === id) {
+													return source[key];
+												} else {
+													var item = getItem(source[key].children, id);
+													if (item != null) {
+														return item;
+													}
+												}
+											}
+											return null;
+										}
+										var category = getItem(pricetree[0].tree, price.parent);
+										category.order.push(price.id);
+										dpd.pricetree.put(pricetree[0], function(pricetree, error) {
+											Logger().info('Price saved');
+											reload();
+										});
+									}
+								});
+							}
+						});
+					}
+				}); 
+
 			}).appendTo($container);
 		$('<div class="pd-price-manager-item-create-item">'
 			+ 'category</div>')
 			.on('click', function() {
 				$container.remove();
+				var guid = (function() {
+					function s4() {
+						return Math.floor((1 + Math.random()) * 0x10000)
+							.toString(16).substring(1);
+					}
+					return function() {
+						return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+							s4() + '-' + s4() + s4() + s4();
+					};
+				})();
+				var parentId = (self.getSelected() && typeof self.getSelected().media === 'undefined') ? self
+					.getSelected().id : null;
+				dpd.pricetree.get({
+					'cafe' : app.getWsModel().get().cafe
+				}, function(pricetree, error) {
+					if (error) {
+						Logger().error('Can not create category');
+					} else {
+						function getItem(source, id) {
+							for (var key in source) {
+								if (source[key].id === id) {
+									return source[key];
+								} else {
+									var item = getItem(source[key].children, id);
+									if (item != null) {
+										return item;
+									}
+								}
+							}
+							return null;
+						}
+						var parent = parentId ? getItem(pricetree[0].tree, parentId) : pricetree[0].tree;
+						var item = {
+							id : guid(),
+							name : '',
+							children : [],
+							tname : {},
+							description : '',
+							tdesc : {},
+							order : []
+						}
+						parentId ? parent.children.push(item) : pricetree[0].tree.push(item);
+
+						app.setBodyActive(false);
+						var $dialog = $('<div/>');
+						$dialog.appendTo(document.body);
+						$dialog.pdDialog({
+							title : 'Category create',
+							content : buildProperties(item),
+							destroy : function() {
+								app.setBodyActive(true);
+							},
+							confirm : function() {
+								item.tname['2af6d93760ad484e'] = item.name;
+								item.tdesc['2af6d93760ad484e'] = item.tdescription;
+								dpd.pricetree.put(pricetree[0], function(pricetree, error) {
+									if (error) {
+										Logger().error('Failed to save category. Cause:\n'
+											+ error.message);
+									} else {
+										Logger().info('Category saved');
+										reload();
+									}
+								});
+							}
+						}); 
+
+					}
+				})
 			}).appendTo($container);
 		$container.appendTo(document.body);
 	});
@@ -49,29 +190,79 @@ var PriceManager = function($container, source) {
 			'disabled' : 'true',
 			'click' : function() {
 				var selectedItem = self.getSelected();
-				if (typeof selectedItem.media !== 'undefined') { 
-					dpd.price.get(selectedItem.id, function(price, error) {
+				if (selectedItem) {
+					if (typeof selectedItem.media !== 'undefined') { 
+						dpd.price.get(selectedItem.id, function(price, error) {
+							if (!error) {
+								price.name = price.tname['2af6d93760ad484e'];
+								price.description = price.tdescription['2af6d93760ad484e'];
+								app.setBodyActive(false);
+
+								var $dialog = $('<div/>');
+								$dialog.appendTo(document.body);
+								$dialog.pdDialog({
+									title : 'Price edit',
+									content : buildProperties(price),
+									destroy : function() {
+										app.setBodyActive(true);
+									},
+									confirm : function() {
+										price.tname['2af6d93760ad484e'] = price.name;
+										price.tdescription['2af6d93760ad484e'] = price.description;
+										dpd.price.put(price, function(price, error) {
+											if (error) {
+												Logger().error('Failed to save price. Cause:\n'
+													+ error.message);
+											} else {
+												Logger().info('Price saved');
+												reload();
+											}
+										});
+									}
+								}); 
+							}
+						});
+					}
+				} else {
+					dpd.pricetree.get({
+						'cafe' : app.getWsModel().get().cafe
+					}, function(pricetree, error) {
 						if (!error) {
-							price.name = price.tname['2af6d93760ad484e'];
+							function getItem(source, id) {
+							for (var key in source) {
+								if (source[key].id === id) {
+									return source[key];
+								} else {
+									var item = getItem(source[key].children, id);
+									if (item != null) {
+										return item;
+									}
+								}
+							}
+							return null;
+							}
+							var category = getItem(pricetree[0].tree, selectedItem.id);
+							category.name = category.tname['2af6d93760ad484e'];
+							category.description = category.tdesc['2af6d93760ad484e'];
 							app.setBodyActive(false);
 
 							var $dialog = $('<div/>');
 							$dialog.appendTo(document.body);
 							$dialog.pdDialog({
-								title : 'Item edit',
-								content : buildProperties(price),
+								title : 'Category edit',
+								content : buildProperties(category),
 								destroy : function() {
 									app.setBodyActive(true);
 								},
 								confirm : function() {
-									//self.set(item.id, item);
-									price.tname['2af6d93760ad484e'] = price.name;
-									dpd.price.put(price, function(price, error) {
+									category.tname['2af6d93760ad484e'] = category.name;
+									category.tdesc['2af6d93760ad484e'] = category.description;
+									dpd.pricetree.put(pricetree[0], function(pricetree, error) {
 										if (error) {
-											Logger().error('Failed to save price. Cause:\n'
+											Logger().error('Failed to save category. Cause:\n'
 												+ error.message);
 										} else {
-											Logger().info('Price saved');
+											Logger().info('Category saved');
 											reload();
 										}
 									});
@@ -79,8 +270,7 @@ var PriceManager = function($container, source) {
 							}); 
 						}
 					});
-			} else {
-				
+				}
 			}
 		}, {
 			'name' : 'remove',
@@ -162,6 +352,7 @@ var PriceManager = function($container, source) {
 				.addStringsProperty('template', 'Template', onChange,
 					templates)
 				.addStringProperty('cost', 'Cost', onChange)
+				.addNumberProperty('count', 'Count', onChange)
 				.addBooleanProperty('fresh', 'New', onChange)
 				.addBooleanProperty('active', 'Active', onChange)
 				.addTextProperty('description', 'Description', onChange)
@@ -224,39 +415,313 @@ var PriceManager = function($container, source) {
 					$dragObject.offset().top - 1));
 				if ($lastDroppable !== $targetObject) {
 					if ($lastDroppable) {
-						$lastDroppable.css({
-							'border-bottom' : '',
-							'background' : ''
-						});
+						$lastDroppable.attr('style', '');
 					}
 					$lastDroppable = $targetObject;
 				}
-				if ($targetObject.hasClass('pd-price-manager-category')) {
-					if ($targetObject.next().children().first().hasClass('pd-price-manager-item')) {
-						$targetObject.css({
+				if ($lastDroppable.hasClass('pd-price-manager-category')) {
+					if (Math.abs($lastDroppable.offset().top - $dragObject.offset().top) > $lastDroppable.outerHeight() / 2) {
+						$lastDroppable.css({
 							'border-bottom' : '1px dotted #9C9'
 						});
 					} else {
-						$targetObject.css({
-							'background' : 'rgba(153,204,153,0.5)'
+						$lastDroppable.css({
+							'background' : 'rgba(153,204,153,0.75)'
 						});
 					}
-				} else if ($targetObject.hasClass('pd-price-manager-item')) {
-					$targetObject.css({
+				}
+				if ($lastDroppable.hasClass('pd-price-manager-item') && !$lastDroppable.hasClass('pd-price-manager-category')) {
+					$lastDroppable.css({
 						'border-bottom' : '1px dotted #9C9'
 					});
 				}
 			},
 			drop : function(e) {
-				var $dragObject = e.dragObject;
-				var dragObjectModel = find(source, $dragObject.attr('id'));
-				if ($lastDroppable.hasClass('pd-price-manager-category')) {
-					var targetModel = find(source, $lastDroppable.parent().attr('id'));
-					targetModel[dragObjectModel.id] = dragObjectModel;
+				if (e.dragObject.attr('id') === $lastDroppable.parent().attr('id')) {
+					$lastDroppable.attr('style', '');
+					return;
 				}
-				delete dragObjectModel.category[dragObjectModel.id];
-				$content.empty();
-				createTree(source, $content, 0);
+				app.setBodyActive(false);
+				app.showLoading(true);
+				$lastDroppable.attr('style', '');				var $dragObject = e.dragObject;
+				var dragObjectModel = find(source, $dragObject.attr('id'));
+				if (dragObjectModel.children) {
+					var targetCategoryId = null;
+					if ($lastDroppable.hasClass('pd-price-manager-item') && !$lastDroppable.hasClass('pd-price-manager-category')) {
+						targetCategoryId = $lastDroppable.parent().parent().attr('id');
+						dpd.pricetree.get({
+								'cafe' : app.getWsModel().get().cafe
+							}, function(pricetree, error){
+								if (pricetree) {
+									var parentId = $content.find('#' + $dragObject.attr('id')).parent().attr('id');
+									function getItem(source, id) {
+										for (var key in source) {
+											if (source[key].id === id) {
+												return source[key];
+											} else {
+												var item = getItem(source[key].children, id);
+												if (item != null) {
+													return item;
+												}
+											}
+										}
+										return null;
+									}
+									var category = $.extend({}, getItem(pricetree[0].tree, $dragObject.attr('id')));
+									if (parentId) {
+										var parentCategory = getItem(pricetree[0].tree, parentId);
+										for (var key in parentCategory.children) {
+											if (parentCategory.children[key].id === $dragObject.attr('id')) {
+												parentCategory.children.splice(key, 1);
+											}
+										}
+									} else {
+										for (var key in pricetree[0].tree) {
+											if (pricetree[0].tree[key].id === $dragObject.attr('id')) {
+												pricetree[0].tree.splice(key, 1);
+											}
+										}
+									}
+									var targetCategory = getItem(pricetree[0].tree, targetCategoryId);
+									if (!targetCategory) {
+										Logger().error('Can not move category');
+										app.setBodyActive(true);
+										app.showLoading(false);
+										return;
+									}
+									targetCategory.children.unshift(category);
+									dpd.pricetree.put(pricetree[0], function(pricetree, error) {
+										if (!error) {
+											reload();
+										} else {
+											Logger().error('Can not move category');
+											app.setBodyActive(true);
+											app.showLoading(false);
+										}
+									});
+								} else {
+									Logger().error('Can not move category');
+									app.setBodyActive(true);
+									app.showLoading(false);
+								}
+							});
+					}
+					if ($lastDroppable.hasClass('pd-price-manager-category')) {
+						if (Math.abs($lastDroppable.offset().top - $dragObject.offset().top) < $lastDroppable.outerHeight() / 2) {
+							targetCategoryId = $lastDroppable.parent().attr('id');
+							dpd.pricetree.get({
+								'cafe' : app.getWsModel().get().cafe
+							}, function(pricetree, error){
+								if (pricetree) {
+									var parentId = $content.find('#' + $dragObject.attr('id')).parent().attr('id');
+									function getItem(source, id) {
+										for (var key in source) {
+											if (source[key].id === id) {
+												return source[key];
+											} else {
+												var item = getItem(source[key].children, id);
+												if (item != null) {
+													return item;
+												}
+											}
+										}
+										return null;
+									}
+									var category = $.extend({}, getItem(pricetree[0].tree, $dragObject.attr('id')));
+									if (parentId) {
+										var parentCategory = getItem(pricetree[0].tree, parentId);
+										for (var key in parentCategory.children) {
+											if (parentCategory.children[key].id === $dragObject.attr('id')) {
+												parentCategory.children.splice(key, 1);
+											}
+										}
+									} else {
+										for (var key in pricetree[0].tree) {
+											if (pricetree[0].tree[key].id === $dragObject.attr('id')) {
+												pricetree[0].tree.splice(key, 1);
+											}
+										}
+									}
+									var targetCategory = getItem(pricetree[0].tree, targetCategoryId);
+									if (!targetCategory) {
+										Logger().error('Can not move category');
+										app.setBodyActive(true);
+										app.showLoading(false);
+										return;
+									}
+									targetCategory.children.unshift(category);
+									dpd.pricetree.put(pricetree[0], function(pricetree, error) {
+										if (!error) {
+											reload();
+										} else {
+											Logger().error('Can not move category');
+											app.setBodyActive(true);
+											app.showLoading(false);
+										}
+									});
+								} else {
+									Logger().error('Can not move category');
+									app.setBodyActive(true);
+									app.showLoading(false);
+								}
+							});
+						} else {
+							targetCategoryId = $lastDroppable.parent().attr('id');
+							dpd.pricetree.get({
+								'cafe' : app.getWsModel().get().cafe
+							}, function(pricetree, error){
+								if (pricetree) {
+									var parentId = $content.find('#' + $dragObject.attr('id')).parent().attr('id');
+									function getItem(source, id) {
+										for (var key in source) {
+											if (source[key].id === id) {
+												return source[key];
+											} else {
+												var item = getItem(source[key].children, id);
+												if (item != null) {
+													return item;
+												}
+											}
+										}
+										return null;
+									}
+									var category = $.extend({}, getItem(pricetree[0].tree, $dragObject.attr('id')));
+									if (parentId) {
+										var parentCategory = getItem(pricetree[0].tree, parentId);
+										for (var key in parentCategory.children) {
+											if (parentCategory.children[key].id === $dragObject.attr('id')) {
+												parentCategory.children.splice(key, 1);
+											}
+										}
+									} else {
+										for (var key in pricetree[0].tree) {
+											if (pricetree[0].tree[key].id === $dragObject.attr('id')) {
+												pricetree[0].tree.splice(key, 1);
+											}
+										}
+									}
+									var targetCategoryParent = getItem(pricetree[0].tree, $content.find('#' + targetCategoryId).parent().attr('id'));
+									if (targetCategoryParent) {
+										for (var key in targetCategoryParent.children) {
+											if (targetCategoryParent.children[key].id === targetCategoryId) {
+												targetCategoryParent.children.splice(key, 0, category);
+											}
+										}
+									} else {
+										for (var key in pricetree[0].tree) {
+											if (pricetree[0].tree[key].id === targetCategoryId) {
+												pricetree[0].tree.splice(key + 1, 0, category);
+											}
+										}
+									}
+									dpd.pricetree.put(pricetree[0], function(pricetree, error) {
+										if (!error) {
+											reload();
+										} else {
+											Logger().error('Can not move category');
+										}
+									});
+								} else {
+									Logger().error('Can not move category');
+								}
+							});
+						}
+					}
+				} else {
+					if ($lastDroppable.hasClass('pd-price-manager-item') && !$lastDroppable.hasClass('pd-price-manager-category')) {
+						var lastDroppableModel = find(source, $lastDroppable
+							.parent().attr('id'));
+						dpd.price.get(dragObjectModel.id, function(price,error) {
+							if (price) {
+								price.parent = lastDroppableModel.parent;
+								dpd.price.put(price, function(price, error) {
+									if (price) {
+										dpd.pricetree.get({
+											'cafe' : app.getWsModel().get().cafe
+										}, function(pricetree,error) {
+											if (pricetree) {
+												function getItem(source, id) {
+													for (var key in source) {
+														if (source[key].id === id) {
+															return source[key];
+														} else {
+															var item = getItem(source[key].children, id);
+															if (item != null) {
+																return item;
+															}
+														}
+													}
+													return null;
+												}
+												var oldParent = getItem(pricetree[0].tree, dragObjectModel.parent);
+												for (var i in oldParent.order) {
+													if (oldParent.order[i] == price.id) {
+														oldParent.order.splice(i, 1);
+													}
+												}
+												var newParent = getItem(pricetree[0].tree, price.parent);
+												for (var i in newParent.order) {
+													if (newParent.order[i] == lastDroppableModel.id) {
+														newParent.order.splice(i + 1, 0, price.id);
+													}
+												}
+												dpd.pricetree.put(pricetree[0], function(pricetree, error) {
+													if (pricetree) {
+														reload();
+													} 
+												});
+											}
+										});
+									}
+								});
+							}
+						});
+					} else if ($lastDroppable.hasClass('pd-price-manager-category')) {
+						var lastDroppableModel = find(source, $lastDroppable
+							.parent().attr('id'));
+						dpd.price.get(dragObjectModel.id, function(price,error) {
+							if (price) {
+								price.parent = lastDroppableModel.id;
+								dpd.price.put(price, function(price, error) {
+									if (price) {
+										dpd.pricetree.get({
+											'cafe' : app.getWsModel().get().cafe
+										}, function(pricetree,error) {
+											if (pricetree) {
+												function getItem(source, id) {
+													for (var key in source) {
+														if (source[key].id === id) {
+															return source[key];
+														} else {
+															var item = getItem(source[key].children, id);
+															if (item != null) {
+																return item;
+															}
+														}
+													}
+													return null;
+												}
+												var oldParent = getItem(pricetree[0].tree, dragObjectModel.parent);
+												for (var i in oldParent.order) {
+													if (oldParent.order[i] == price.id) {
+														oldParent.order.splice(i, 1);
+													}
+												}
+												var newParent = getItem(pricetree[0].tree, price.parent);
+												newParent.order.unshift(price.id);
+												dpd.pricetree.put(pricetree[0], function(pricetree, error) {
+													if (pricetree) {
+														reload();
+													} 
+												});
+											}
+										});
+									}
+								});
+							}
+						});
+					}
+				}
 			}
 		});
 		
@@ -265,15 +730,23 @@ var PriceManager = function($container, source) {
 	
 	function createTree(item, $content, level) {
 		for (var key in item) {
-			if (key === 'category') {
-				continue;
-			}
-			if (typeof item[key] === 'object' && !Array.isArray(item[key])) {
-				var $level = addPrice($content, item[key]);
-				$level.data('level', level + 1);
-				if (typeof item[key].media === 'undefined') {
-					createTree(item[key], $level, level + 1);
+			if (key === 'order') {
+				for (var i in item.order) {
+					var $level = addPrice($content, item[item.order[i]]);
+					$level.data('level', level + 1);
 				}
+			}
+			if (key === 'children') {
+				for (var i in item.children) {
+					var $level = addPrice($content, item[item.children[i].id]);
+					$level.data('level', level + 1);
+					createTree(item[item.children[i].id], $level, level + 1);
+				}
+			}
+			if (key.indexOf('-') > 0 && level === 0) {
+				var $level = addPrice($content, item[key]);
+		 		$level.data('level', level + 1);
+		 		createTree(item[key], $level, level + 1);
 			}
 		}
 	}
@@ -332,16 +805,73 @@ var PriceManager = function($container, source) {
 	};
 	self.remove = function() {
 		var selectedItem = self.getSelected();
-		if (typeof selectedItem.media === 'undefined') {
-
-		} else {
+		if (selectedItem) {
 			app.setBodyActive(false);
 			app.showLoading(true);
-			dpd.price.del({
-				'id' : selectedItem.id
-			}, function(price, error) {
-				reload();
-			});
+			if (typeof selectedItem.media === 'undefined') {
+				dpd.pricetree.get({
+					'cafe' : app.getWsModel().get().cafe
+				}, function(pricetree, error) {
+					if (error) {
+						Logger().error('Can not remove category');
+					} else {
+						var tree = pricetree[0].tree;
+						function removeCategory(source, id) {
+							for (var key in source) {
+								if (source[key].id == id) {
+									return source.splice(key, 1);
+								} else {
+									removeCategory(source[key].children, id);
+								}
+							}
+							return false;
+						}
+						removeCategory(tree, selectedItem.id);
+						dpd.pricetree.put(pricetree[0], function(pricetree, error) {
+							if (error) {
+								Logger().error('Can not remove category');
+							} else {
+								reload();
+							}
+						});
+					}
+				});
+			} else {
+				app.setBodyActive(false);
+				app.showLoading(true);
+				dpd.price.del({
+					'id' : selectedItem.id
+				}, function(price, error) {
+					dpd.pricetree.get(function(pricetree, error) {
+						if (pricetree) {
+							function getItem(source, id) {
+								for (var key in source) {
+									if (source[key].id === id) {
+										return source[key];
+									} else {
+										var item = getItem(source[key].children, id);
+										if (item != null) {
+											return item;
+										}
+									}
+								}
+								return null;
+							}
+							var category = getItem(pricetree[0].tree, price.parent);
+							for (var key in category.children) {
+								if (category.children[key] === price.id) {
+									category.children.splice(key, 1);
+								}
+							}
+							dpd.pricetree.put(pricetree[0], function(pricetree, error) {
+								if (!error) {
+									reload();
+								}
+							});
+						}
+					});
+				});
+			}
 		}
 	};
 	self.add = function(categoryId, price) {

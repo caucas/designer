@@ -32,49 +32,70 @@ var WsPreviewController = function($viewContainer, model) {
 	function addItems(price, level) {
 		var menuModel = model.get();
 		var page = level === 1 ? 0 : menuModel.pages.push([]) - 1;
+
 		for (var key in price) {
-			if (key === 'category') {
-				continue;
-			}
-			if (typeof price[key] === 'object' && !Array.isArray(price[key])) {
-				if (typeof price[key].media === 'undefined') {
-					if ((typeof price[key].active !== 'undefined' 
-						&& price[key].active) || typeof price[key].active 
-						=== 'undefined') {
-						menuModel.pages[page].push(initItem({
-							type : 'template',
-							config : {
-								template : 'link' + (level > 2 ? 2 : level),
-								price : key
-							}
-						}));
-					}
-					addItems(price[key], level + 1);
-				} else {
+			if (key === 'order') {
+				for (var i in price.order) {
+					var item = price[price.order[i]];
 					var template = null;
-					if (price[key].template) {
+					if (item.template) {
 						var event = $.Event('message', {
 							id : 'gettemplate',
-							template : price[key].template
+							template : item.template
 						});
 						$(window).triggerHandler(event);
 						template = (event.template && event.template.name) ? 
 							event.template.name : 'default';
 					}
-					if ((typeof price[key].active !== 'undefined' 
-						&& price[key].active) || typeof price[key].active 
+					if ((typeof item.active !== 'undefined' 
+						&& item.active) || typeof item.active 
 						=== 'undefined') {
 						menuModel.pages[page].push(initItem({
 							type : 'template',
 							config : {
 								template : template ? template : 'default',
-								price : key
+								price : item.id
 							}
 						}));
 					}
 				}
 			}
+			if (key === 'children') {
+				for (var i in price.children) {
+					var item = price[price.children[i].id];
+
+					if ((typeof item.active !== 'undefined' 
+						&& item.active) || typeof item.active 
+						=== 'undefined') {
+						menuModel.pages[page].push(initItem({
+							type : 'template',
+							config : {
+								template : 'link' + (level > 2 ? 2 : level),
+								price : item.id
+							}
+						}));
+					}
+					addItems(item, level + 1);
+				}
+			}
+			if (key.indexOf('-') > 0 && level === 1) {
+				var item = price[key];
+
+				if ((typeof item.active !== 'undefined' 
+					&& item.active) || typeof item.active 
+					=== 'undefined') {
+					menuModel.pages[page].push(initItem({
+						type : 'template',
+						config : {
+							template : 'link' + (level > 2 ? 2 : level),
+							price : item.id
+						}
+					}));
+				}
+				addItems(item, level + 1);
+			}
 		}
+
 		menuModel.pages[page].push(initItem({
 			type : 'ps'
 		}));
@@ -576,6 +597,9 @@ var WsPreviewController = function($viewContainer, model) {
 			return node.getAttr('model');
 		}).remove();
 		var items = model.get(page);
+		if (!items) {
+			return;
+		}
 		var renderedItemCount = 0;
 		var itemCount = items.length;
 		for (var i = 0; i < items.length; i++) {
