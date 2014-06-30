@@ -620,9 +620,57 @@ var WsPreviewController = function($viewContainer, model) {
 					self.updateRunningTitles();
 				}
 			});
+			itemView.on('click', function() {
+				var model = this.getAttr('model');
+				if (model.action.length > 0) {
+					var action = model.action.split(':')[1];
+					var item = getItemByAnchor(action);
+					if (item) {
+						self.onPageSelect(item.p);
+					}
+				}
+				if (model.config.items) {
+					for (var key in model.config.items) {
+						if (model.config.items[key].action.length > 0) {
+							var action = model.config.items[key].action
+								.split(':')[1];
+							var item = getItemByAnchor(action);
+							if (item) {
+								self.onPageSelect(item.p);
+							}
+						}
+					}
+				}
+			})
 			wsItemFactory.render(itemView);
 		}
 	};
+
+	function getItemByAnchor(value) {
+		var items = model.find();
+		var runningTitles = model.get().runningTitles;
+		for (var key in runningTitles) {
+			var runningTitle = runningTitles[key];
+			if (runningTitle) {
+				items.push(runningTitle.header);
+				items.push(runningTitle.footer);
+			}
+		}
+		for (var key in items) {
+			var item = items[key];
+			if (item.anchor === value) {
+				return item;
+			}
+			if (item.config.items) {
+				for (var i in item.config.items) {
+					if (item.config.items[i].anchor === value) {
+						return item.config.items[i];
+					}
+				}
+			}
+		}
+		return null;
+	}
 
 	self.setPageSize({
 		width : model.getWidth(),

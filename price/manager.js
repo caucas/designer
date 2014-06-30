@@ -160,6 +160,7 @@ var PriceManager = function($container, source) {
 							confirm : function() {
 								item.tname['2af6d93760ad484e'] = item.name;
 								item.tdesc['2af6d93760ad484e'] = item.tdescription;
+								console.log(pricetree[0])
 								dpd.pricetree.put(pricetree[0], function(pricetree, error) {
 									if (error) {
 										Logger().error('Failed to save category. Cause:\n'
